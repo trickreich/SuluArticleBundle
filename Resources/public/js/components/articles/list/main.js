@@ -7,7 +7,7 @@
  * with this source code in the file LICENSE.
  */
 
-define(['underscore'], function(_) {
+define(['underscore', 'config'], function(_, Config) {
 
     'use strict';
 
@@ -37,6 +37,7 @@ define(['underscore'], function(_) {
 
         header: function() {
             var types = this.options.config.types,
+                typeNames = this.options.config.typeNames,
                 button = {
                     icon: 'plus-circle',
                     title: 'public.add-new'
@@ -58,10 +59,10 @@ define(['underscore'], function(_) {
                     };
                 }.bind(this));
 
-                items = _.map(types, function(type) {
+                items = _.map(typeNames, function(type) {
                     return {
                         id: type,
-                        name: type,
+                        name: types[type].title,
                         key: type
                     };
                 });

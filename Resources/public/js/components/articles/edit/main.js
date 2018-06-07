@@ -246,6 +246,13 @@ define([
         },
 
         initialize: function() {
+            if (!!this.options.id) {
+                // route to settings if it's a ghost
+                if (this.options.content !== 'settings' && this.data.shadowOn === true) {
+                    ArticleRouter.toEdit(this.options.id, this.options.locale, 'settings');
+                }
+            }
+
             this.$el.addClass('article-form');
             SmartContentManager.initialize();
 
@@ -284,7 +291,9 @@ define([
             this.sandbox.sulu.saveUserSetting(this.options.config.settingsKey, item.id);
 
             var data = this.getAdapter().prepareData(this.data, this);
-            if (-1 === _(data.concreteLanguages).indexOf(item.id)) {
+            if (-1 === _(data.concreteLanguages).indexOf(item.id)
+                && -1 === _(data.enabledShadowLanguages).values().indexOf(item.id)
+            ) {
                 OpenGhost.openGhost.call(this, data, this.translations.openGhostOverlay).then(function(copy, src) {
                     if (!!copy) {
                         CopyLocale.copyLocale.call(
@@ -293,12 +302,12 @@ define([
                             src,
                             [item.id],
                             function() {
-                                this.toEdit(item.id);
+                                this.toEdit(item.id, data.id, 'details');
                             }.bind(this)
                         );
                     } else {
                         // new article will be created
-                        this.toEdit(item.id);
+                        this.toEdit(item.id, data.id, 'details');
                     }
                 }.bind(this)).fail(function() {
                     // the open-ghost page got canceled, so reset the language changer
@@ -372,12 +381,12 @@ define([
             }.bind(this));
         },
 
-        toEdit: function(locale, id) {
+        toEdit: function(locale, id, tab) {
             if (!!this.options.page && this.options.page !== 1) {
                 return ArticleRouter.toPageEdit((id || this.options.id), this.options.page, (locale || this.options.locale))
             }
 
-            ArticleRouter.toEdit((id || this.options.id), (locale || this.options.locale), this.options.content);
+            ArticleRouter.toEdit((id || this.options.id), (locale || this.options.locale), (tab || this.options.content));
         },
 
         toList: function(locale) {

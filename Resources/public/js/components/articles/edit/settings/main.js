@@ -33,10 +33,10 @@ define([
             changedOnly: 'sulu_article.form.settings.changelog.changed-only',
             created: 'sulu_article.form.settings.changelog.created',
             createdOnly: 'sulu_article.form.settings.changelog.created-only',
-            shadowPage: 'sulu.content.form.settings.shadow_page',
-            shadowEnable: 'sulu.content.form.settings.shadow.enable',
-            publishedShadow: 'sulu-content.published-shadow',
-            shadowBaseLanguage: 'sulu.content.form.settings.shadow.base_language',
+            shadowPage: 'sulu_article.form.settings.shadow_page',
+            shadowEnable: 'sulu_article.form.settings.shadow.enable',
+            publishedShadow: 'sulu_article.published-shadow',
+            shadowBaseLanguage: 'sulu_article.form.settings.shadow.base_language',
         }
     },
 

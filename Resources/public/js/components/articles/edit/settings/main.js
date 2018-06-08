@@ -189,10 +189,10 @@ define([
             }
 
             if (!!shadow) {
-                this.sandbox.emit('sulu.content.contents.show-save-items', 'shadow');
+                this.sandbox.emit('sulu.article.show-save-items', 'shadow');
                 $shadowDescription.show();
             } else {
-                this.sandbox.emit('sulu.content.contents.show-save-items', 'content');
+                this.sandbox.emit('sulu.article.show-save-items', 'content');
                 $shadowDescription.hide();
             }
 
@@ -342,7 +342,7 @@ define([
                     {
                         created: formattedTime
                     }
-                )
+                );
             }
 
             this.sandbox.dom.text('#created', creationText);
@@ -371,7 +371,7 @@ define([
                     {
                         changed: formattedTime
                     }
-                )
+                );
             }
 
             this.sandbox.dom.text('#changed', changedText);

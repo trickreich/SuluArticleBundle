@@ -250,6 +250,8 @@ define([
                 // route to settings if it's a ghost
                 if (this.options.content !== 'settings' && this.data.shadowOn === true) {
                     ArticleRouter.toEdit(this.options.id, this.options.locale, 'settings');
+
+                    return;
                 }
             }
 
@@ -276,6 +278,9 @@ define([
             this.sandbox.on('sulu.article.update-page-switcher', this.updatePageSwitcher.bind(this));
             this.sandbox.on('husky.tabs.header.item.select', this.tabChanged.bind(this));
             this.sandbox.on('sulu.header.language-changed', this.languageChanged.bind(this));
+            this.sandbox.on('sulu.article.show-save-items', function(state) {
+                this.showSaveItems(state);
+            }.bind(this));
         },
 
         /**
@@ -443,6 +448,33 @@ define([
             this.showState(!!this.data.published);
         },
 
+        showSaveItems: function(state) {
+            var allItems = ['saveDraft', 'savePublish', 'publish', 'saveOnly'], hiddenItems, shownItems;
+
+            if (!state) {
+                state = 'content';
+            }
+
+            switch (state) {
+                case 'content':
+                    hiddenItems = [];
+                    break;
+                case 'shadow':
+                    hiddenItems = ['saveDraft', 'savePublish', 'publish'];
+                    break;
+            }
+
+            shownItems = _.difference(allItems, hiddenItems);
+
+            this.sandbox.util.each(shownItems, function(index, shownItem) {
+                this.sandbox.emit('sulu.header.toolbar.item.show', shownItem);
+            }.bind(this));
+
+            this.sandbox.util.each(hiddenItems, function(index, hiddenItem) {
+                this.sandbox.emit('sulu.header.toolbar.item.hide', hiddenItem);
+            }.bind(this));
+        },
+
         setSaveToolbarItems: function(item, value) {
             this.sandbox.emit('sulu.header.toolbar.item.' + (!!value ? 'enable' : 'disable'), item, false);
         },
@@ -573,7 +605,7 @@ define([
         },
 
         showState: function(published) {
-            if (!!published && !this.data.type) {
+            if (!!published) {
                 this.sandbox.emit('sulu.header.toolbar.item.hide', 'stateTest');
                 this.sandbox.emit('sulu.header.toolbar.item.show', 'statePublished');
             } else {

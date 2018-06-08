@@ -171,6 +171,12 @@ define(['underscore', 'services/husky/translator'], function(_, translator) {
                 return badge;
             }
 
+            if (!!item.localizationState &&
+                item.localizationState.state === 'shadow'
+            ) {
+                return badge;
+            }
+
             return false;
         }
     };

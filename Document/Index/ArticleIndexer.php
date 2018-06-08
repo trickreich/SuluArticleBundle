@@ -29,12 +29,15 @@ use Sulu\Bundle\ArticleBundle\Event\IndexEvent;
 use Sulu\Bundle\ArticleBundle\Metadata\ArticleViewDocumentIdTrait;
 use Sulu\Bundle\ArticleBundle\Metadata\StructureTagTrait;
 use Sulu\Bundle\ContactBundle\Entity\ContactRepository;
+use Sulu\Bundle\DocumentManagerBundle\Bridge\DocumentInspector;
 use Sulu\Bundle\SecurityBundle\UserManager\UserManager;
 use Sulu\Component\Content\Document\LocalizationState;
 use Sulu\Component\Content\Document\WorkflowStage;
 use Sulu\Component\Content\Metadata\Factory\StructureMetadataFactoryInterface;
 use Sulu\Component\Content\Metadata\PropertyMetadata;
 use Sulu\Component\Content\Metadata\StructureMetadata;
+use Sulu\Component\DocumentManager\DocumentManagerInterface;
+use Sulu\Component\DocumentManager\Exception\DocumentManagerException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -92,6 +95,16 @@ class ArticleIndexer implements IndexerInterface
     protected $translator;
 
     /**
+     * @var DocumentManagerInterface
+     */
+    protected $documentManager;
+
+    /**
+     * @var DocumentInspector
+     */
+    protected $inspector;
+
+    /**
      * @var array
      */
     protected $typeConfiguration;
@@ -106,6 +119,8 @@ class ArticleIndexer implements IndexerInterface
      * @param SeoFactory $seoFactory
      * @param EventDispatcherInterface $eventDispatcher
      * @param TranslatorInterface $translator
+     * @param DocumentManagerInterface $documentManager
+     * @param DocumentInspector $inspector
      * @param array $typeConfiguration
      */
     public function __construct(
@@ -118,6 +133,8 @@ class ArticleIndexer implements IndexerInterface
         SeoFactory $seoFactory,
         EventDispatcherInterface $eventDispatcher,
         TranslatorInterface $translator,
+        DocumentManagerInterface $documentManager,
+        DocumentInspector $inspector,
         array $typeConfiguration
     ) {
         $this->structureMetadataFactory = $structureMetadataFactory;
@@ -129,6 +146,8 @@ class ArticleIndexer implements IndexerInterface
         $this->seoFactory = $seoFactory;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
+        $this->documentManager = $documentManager;
+        $this->inspector = $inspector;
         $this->typeConfiguration = $typeConfiguration;
     }
 
@@ -432,9 +451,35 @@ class ArticleIndexer implements IndexerInterface
      */
     public function index(ArticleDocument $document)
     {
-        $article = $this->createOrUpdateArticle($document, $document->getLocale());
+        $localizedState = $document->isShadowLocaleEnabled() ? LocalizationState::SHADOW : LocalizationState::LOCALIZED;
+        $article = $this->createOrUpdateArticle($document, $document->getLocale(), $localizedState);
+
         $this->dispatchIndexEvent($document, $article);
         $this->manager->persist($article);
+
+        if (!$document->isShadowLocaleEnabled()) {
+            $this->indexShadows($document);
+        }
+    }
+
+    /**
+     * @param ArticleDocument $document
+     */
+    protected function indexShadows(ArticleDocument $document)
+    {
+        foreach ($this->inspector->getShadowLocales($document) as $shadowLocale) {
+            try {
+                /** @var ArticleDocument $shadowDocument */
+                $shadowDocument = $this->documentManager->find($document->getUuid(), $shadowLocale);
+
+                $article = $this->createOrUpdateArticle($shadowDocument, $shadowLocale, LocalizationState::SHADOW);
+
+                $this->dispatchIndexEvent($document, $article);
+                $this->manager->persist($article);
+            } catch (DocumentManagerException $documentManagerException) {
+                // do nothing
+            }
+        }
     }
 
     /**

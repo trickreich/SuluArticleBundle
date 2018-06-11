@@ -130,6 +130,7 @@ class ArticleGhostIndexer extends ArticleIndexer
 
             // Try index the article ghosts.
             $article = $this->createOrUpdateArticle(
+                $ghostDocument,
                 $localization->getLocale(),
                 LocalizationState::GHOST
             );

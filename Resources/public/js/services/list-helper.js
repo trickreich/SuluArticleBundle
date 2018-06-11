@@ -176,7 +176,7 @@ define(['underscore', 'services/husky/translator'], function(_, translator) {
             if (!!item.localizationState &&
                 item.localizationState.state === 'shadow'
             ) {
-                badge.title = templates.shadowIcon({title: translations.shadow});
+                badge.title = templates.shadowIcon({title: translations.shadowArticle});
                 badge.cssClass = 'badge-none badge-color-black';
 
                 return badge;

@@ -96,11 +96,10 @@ class ArticleGhostIndexer extends ArticleIndexer
     public function index(ArticleDocument $document)
     {
         $article = $this->createOrUpdateArticle($document, $document->getLocale());
+        $this->createOrUpdateShadows($document);
         $this->createOrUpdateGhosts($document);
         $this->dispatchIndexEvent($document, $article);
         $this->manager->persist($article);
-
-        $this->indexShadows($document);
     }
 
     /**
@@ -116,15 +115,21 @@ class ArticleGhostIndexer extends ArticleIndexer
                 continue;
             }
 
+            /** @var ArticleDocument $ghostDocument */
+            $ghostDocument = $this->documentManager->find(
+                $document->getUuid(),
+                $locale
+            );
+
+            $localizationState = $this->inspector->getLocalizationState($ghostDocument);
+
+            // Only index ghosts
+            if (LocalizationState::GHOST !== $localizationState) {
+                continue;
+            }
+
             // Try index the article ghosts.
             $article = $this->createOrUpdateArticle(
-                $this->documentManager->find(
-                    $document->getUuid(),
-                    $locale,
-                    [
-                        'load_ghost_content' => true,
-                    ]
-                ),
                 $localization->getLocale(),
                 LocalizationState::GHOST
             );

@@ -451,22 +451,27 @@ class ArticleIndexer implements IndexerInterface
      */
     public function index(ArticleDocument $document)
     {
-        $localizedState = $document->isShadowLocaleEnabled() ? LocalizationState::SHADOW : LocalizationState::LOCALIZED;
-        $article = $this->createOrUpdateArticle($document, $document->getLocale(), $localizedState);
+        if ($document->isShadowLocaleEnabled()) {
+            return;
+        }
+
+        $article = $this->createOrUpdateArticle($document, $document->getLocale());
 
         $this->dispatchIndexEvent($document, $article);
         $this->manager->persist($article);
 
-        if (!$document->isShadowLocaleEnabled()) {
-            $this->indexShadows($document);
-        }
+        $this->createOrUpdateShadows($document);
     }
 
     /**
      * @param ArticleDocument $document
      */
-    protected function indexShadows(ArticleDocument $document)
+    protected function createOrUpdateShadows(ArticleDocument $document)
     {
+        if ($document->isShadowLocaleEnabled()) {
+            return;
+        }
+
         foreach ($this->inspector->getShadowLocales($document) as $shadowLocale) {
             try {
                 /** @var ArticleDocument $shadowDocument */

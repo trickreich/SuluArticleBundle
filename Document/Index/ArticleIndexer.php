@@ -452,6 +452,8 @@ class ArticleIndexer implements IndexerInterface
     public function index(ArticleDocument $document)
     {
         if ($document->isShadowLocaleEnabled()) {
+            $this->indexShadow($document);
+
             return;
         }
 
@@ -461,6 +463,14 @@ class ArticleIndexer implements IndexerInterface
         $this->manager->persist($article);
 
         $this->createOrUpdateShadows($document);
+    }
+
+    protected function indexShadow(ArticleDocument $document)
+    {
+        $article = $this->createOrUpdateArticle($document, $document->getLocale(), LocalizationState::SHADOW);
+
+        $this->dispatchIndexEvent($document, $article);
+        $this->manager->persist($article);
     }
 
     /**

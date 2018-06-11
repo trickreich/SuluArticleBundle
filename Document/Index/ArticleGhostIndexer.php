@@ -95,6 +95,12 @@ class ArticleGhostIndexer extends ArticleIndexer
      */
     public function index(ArticleDocument $document)
     {
+        if ($document->isShadowLocaleEnabled()) {
+            $this->indexShadow($document);
+
+            return;
+        }
+
         $article = $this->createOrUpdateArticle($document, $document->getLocale());
         $this->createOrUpdateShadows($document);
         $this->createOrUpdateGhosts($document);

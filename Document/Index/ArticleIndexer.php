@@ -465,14 +465,12 @@ class ArticleIndexer implements IndexerInterface
         $this->createOrUpdateShadows($document);
     }
 
+    /**
+     * @param ArticleDocument $document
+     */
     protected function indexShadow(ArticleDocument $document)
     {
-        $shadowDocument = $this->documentManager->find(
-            $document->getUuid(),
-            $document->getOriginalLocale(),
-            ['rehydrate' => true]
-        );
-        $article = $this->createOrUpdateArticle($shadowDocument, $document->getOriginalLocale(), LocalizationState::SHADOW);
+        $article = $this->createOrUpdateArticle($document, $document->getOriginalLocale(), LocalizationState::SHADOW);
 
         $this->dispatchIndexEvent($document, $article);
         $this->manager->persist($article);
@@ -491,11 +489,7 @@ class ArticleIndexer implements IndexerInterface
             try {
                 /** @var ArticleDocument $shadowDocument */
                 $shadowDocument = $this->documentManager->find($document->getUuid(), $shadowLocale);
-
-                $article = $this->createOrUpdateArticle($shadowDocument, $shadowLocale, LocalizationState::SHADOW);
-
-                $this->dispatchIndexEvent($document, $article);
-                $this->manager->persist($article);
+                $this->indexShadow($shadowDocument);
             } catch (DocumentManagerException $documentManagerException) {
                 // do nothing
             }

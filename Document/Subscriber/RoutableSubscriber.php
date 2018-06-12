@@ -159,11 +159,13 @@ class RoutableSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $propertyName = $this->getRoutePathPropertyName($document->getStructureType(), $event->getLocale());
+        $locale = $document->isShadowLocaleEnabled() ? $document->getOriginalLocale() : $event->getLocale();
+
+        $propertyName = $this->getRoutePathPropertyName($document->getStructureType(), $locale);
         $routePath = $event->getNode()->getPropertyValueWithDefault($propertyName, null);
         $document->setRoutePath($routePath);
 
-        $route = $this->routeRepository->findByEntity($document->getClass(), $document->getUuid(), $event->getLocale());
+        $route = $this->routeRepository->findByEntity($document->getClass(), $document->getUuid(), $locale);
         if ($route) {
             $document->setRoute($route);
         }

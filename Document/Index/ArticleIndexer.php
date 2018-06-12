@@ -470,9 +470,17 @@ class ArticleIndexer implements IndexerInterface
      */
     protected function indexShadow(ArticleDocument $document)
     {
-        $article = $this->createOrUpdateArticle($document, $document->getOriginalLocale(), LocalizationState::SHADOW);
+        $shadowDocument = $this->documentManager->find(
+            $document->getUuid(),
+            $document->getOriginalLocale(),
+            [
+                'rehydrate' => true,
+            ]
+        );
 
-        $this->dispatchIndexEvent($document, $article);
+        $article = $this->createOrUpdateArticle($shadowDocument, $document->getOriginalLocale(), LocalizationState::SHADOW);
+
+        $this->dispatchIndexEvent($shadowDocument, $article);
         $this->manager->persist($article);
     }
 

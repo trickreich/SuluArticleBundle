@@ -392,10 +392,25 @@ class ArticleSubscriber implements EventSubscriberInterface
                 continue;
             }
 
+            $changed = false;
             $parent = $childDocument->getParent();
 
             if ($parent->getStructureType() !== $childDocument->getStructureType()) {
                 $childDocument->setStructureType($parent->getStructureType());
+                $changed = true;
+            }
+
+            if ($parent->getShadowLocale() !== $childDocument->getShadowLocale()) {
+                $childDocument->setShadowLocale($parent->getShadowLocale());
+                $changed = true;
+            }
+
+            if ($parent->isShadowLocaleEnabled() !== $childDocument->isShadowLocaleEnabled()) {
+                $childDocument->setShadowLocaleEnabled($parent->isShadowLocaleEnabled());
+                $changed = true;
+            }
+
+            if ($changed) {
                 $this->documentManager->persist($childDocument, $child['locale']);
             }
         }

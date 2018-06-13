@@ -81,6 +81,23 @@ class ArticlePageControllerTest extends SuluTestCase
         return json_decode($client->getResponse()->getContent(), true);
     }
 
+    private function createArticleShadow($article, $locale = 'de', $shadowLocale = 'en')
+    {
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'PUT',
+            '/api/articles/' . $article['id'] . '?locale=' . $locale,
+            [
+                'shadowOn' => true,
+                'shadowBaseLanguage' => $shadowLocale,
+            ]
+        );
+
+        $this->assertHttpStatusCode(200, $client->getResponse());
+
+        return json_decode($client->getResponse()->getContent(), true);
+    }
+
     private function getArticle($uuid, $locale = 'de')
     {
         $client = $this->createAuthenticatedClient();
@@ -306,6 +323,18 @@ class ArticlePageControllerTest extends SuluTestCase
 
         $this->assertArrayNotHasKey('type', $response);
         $this->assertEquals('', $response['pageTitle']);
+    }
+
+    public function testHandleShadowArticlePage()
+    {
+        $article = $this->createArticle();
+        $page = $this->post($article);
+
+        $article = $this->createArticleLocale($article, 'Sulu is great');
+
+        $articleShadow = $this->createArticleShadow($article);
+
+        $this->assertEquals('Sulu ist toll', $articleShadow['pageTitle']);
     }
 
     private function purgeIndex()

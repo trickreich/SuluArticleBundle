@@ -133,7 +133,7 @@ class ArticleSubscriber implements EventSubscriberInterface
             Events::REORDER => [['persistPageDataOnReorder', -2000]],
             Events::UNPUBLISH => 'handleUnpublish',
             Events::REMOVE_DRAFT => [['handleScheduleIndex', -1024], ['removeDraftChildren', 0]],
-            Events::FLUSH => [['handleFlushChildren', -1024], ['handleFlush', -2048], ['handleFlushLive', -2048]],
+            Events::FLUSH => [['handleFlush', -2048], ['handleFlushLive', -2048]],
             Events::COPY => ['handleCopy'],
             Events::METADATA_LOAD => ['handleMetadataLoad'],
         ];
@@ -372,53 +372,6 @@ class ArticleSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Work through scheduled children.
-     *
-     * @param FlushEvent $event
-     */
-    public function handleFlushChildren(FlushEvent $event)
-    {
-        if (count($this->children) < 1) {
-            return;
-        }
-
-        foreach ($this->children as $child) {
-            /** @var ArticlePageDocument $childDocument */
-            $childDocument = $this->documentManager->find($child['uuid'], $child['locale']);
-
-            $localizationState = $this->documentInspector->getLocalizationState($childDocument);
-
-            if (LocalizationState::GHOST === $localizationState) {
-                continue;
-            }
-
-            $changed = false;
-            $parent = $childDocument->getParent();
-
-            if ($parent->getStructureType() !== $childDocument->getStructureType()) {
-                $childDocument->setStructureType($parent->getStructureType());
-                $changed = true;
-            }
-
-            if ($parent->getShadowLocale() !== $childDocument->getShadowLocale()) {
-                $childDocument->setShadowLocale($parent->getShadowLocale());
-                $changed = true;
-            }
-
-            if ($parent->isShadowLocaleEnabled() !== $childDocument->isShadowLocaleEnabled()) {
-                $childDocument->setShadowLocaleEnabled($parent->isShadowLocaleEnabled());
-                $changed = true;
-            }
-
-            if ($changed) {
-                $this->documentManager->persist($childDocument, $child['locale']);
-            }
-        }
-
-        $this->children = [];
-    }
-
-    /**
      * Index all scheduled article documents with default indexer.
      *
      * @param FlushEvent $event
@@ -431,7 +384,7 @@ class ArticleSubscriber implements EventSubscriberInterface
 
         foreach ($this->documents as $documentData) {
             $document = $this->documentManager->find($documentData['uuid'], $documentData['locale']);
-            $this->documentManager->refresh($document, $documentData['locale']);
+            $this->documentManager->refresh($document);
 
             $this->indexer->index($document);
         }
@@ -452,7 +405,7 @@ class ArticleSubscriber implements EventSubscriberInterface
 
         foreach ($this->liveDocuments as $documentData) {
             $document = $this->documentManager->find($documentData['uuid'], $documentData['locale']);
-            $this->documentManager->refresh($document, $documentData['locale']);
+            $this->documentManager->refresh($document);
 
             $this->liveIndexer->index($document);
         }
@@ -561,15 +514,45 @@ class ArticleSubscriber implements EventSubscriberInterface
             return;
         }
 
-        foreach ($document->getChildren() as $child) {
-            if (!$child instanceof ArticlePageDocument) {
+        foreach ($document->getChildren() as $childDocument) {
+            if (!$childDocument instanceof ArticlePageDocument) {
                 continue;
             }
 
-            $this->children[$child->getUuid()] = [
-                'uuid' => $child->getUuid(),
-                'locale' => $child->getLocale(),
-            ];
+            $localizationState = $this->documentInspector->getLocalizationState($childDocument);
+
+            if (LocalizationState::GHOST === $localizationState) {
+                continue;
+            }
+
+            $changed = false;
+
+            if ($document->getStructureType() !== $childDocument->getStructureType()) {
+                $childDocument->setStructureType($document->getStructureType());
+                $changed = true;
+            }
+
+            if ($document->getShadowLocale() !== $childDocument->getShadowLocale()) {
+                $childDocument->setShadowLocale($document->getShadowLocale());
+                $changed = true;
+            }
+
+            if ($document->isShadowLocaleEnabled() !== $childDocument->isShadowLocaleEnabled()) {
+                $childDocument->setShadowLocaleEnabled($document->isShadowLocaleEnabled());
+                $changed = true;
+            }
+
+            if ($changed) {
+                $this->documentManager->persist(
+                    $childDocument,
+                    $childDocument->getLocale(),
+                    [
+                        'clear_missing_content' => false,
+                        'auto_name' => false,
+                        'auto_rename' => false,
+                    ]
+                );
+            }
         }
     }
 

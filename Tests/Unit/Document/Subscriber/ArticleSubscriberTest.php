@@ -461,14 +461,17 @@ class ArticleSubscriberTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testHydratePagData()
+    public function testHydratePageData()
     {
         $node = $this->prophesize(NodeInterface::class);
 
         $event = $this->prophesize(HydrateEvent::class);
         $event->getDocument()->willReturn($this->document->reveal());
         $event->getNode()->willReturn($node->reveal());
-        $event->getLocale()->willReturn($this->locale);
+
+        $this->documentInspector->getLocalizationState(
+            $this->document->reveal()
+        )->willReturn(LocalizationState::LOCALIZED);
 
         $propertyName = 'i18n:' . $this->locale . '-' . ArticleSubscriber::PAGES_PROPERTY;
         $this->propertyEncoder->localizedSystemName(ArticleSubscriber::PAGES_PROPERTY, $this->locale)
@@ -478,6 +481,62 @@ class ArticleSubscriberTest extends \PHPUnit_Framework_TestCase
             ->willReturn(json_encode([['title' => 'Test title']]));
 
         $this->document->setPages([['title' => 'Test title']])->shouldBeCalled();
+        $this->document->getOriginalLocale()->willReturn($this->locale);
+
+        $this->articleSubscriber->hydratePageData($event->reveal());
+    }
+
+    public function testHydratePageDataShadow()
+    {
+        $node = $this->prophesize(NodeInterface::class);
+
+        $event = $this->prophesize(HydrateEvent::class);
+        $event->getDocument()->willReturn($this->document->reveal());
+        $event->getNode()->willReturn($node->reveal());
+
+        $this->documentInspector->getLocalizationState(
+            $this->document->reveal()
+        )->willReturn(LocalizationState::SHADOW);
+
+        $propertyNameEN = 'i18n:' . 'en' . '-' . ArticleSubscriber::PAGES_PROPERTY;
+        $this->propertyEncoder->localizedSystemName(ArticleSubscriber::PAGES_PROPERTY, 'en')
+            ->willReturn($propertyNameEN);
+
+        $propertyNameDE = 'i18n:' . $this->locale . '-' . ArticleSubscriber::PAGES_PROPERTY;
+        $this->propertyEncoder->localizedSystemName(ArticleSubscriber::PAGES_PROPERTY, $this->locale)
+            ->willReturn($propertyNameDE);
+
+        $node->getPropertyValueWithDefault($propertyNameDE, json_encode([]))
+            ->willReturn(json_encode(
+                [
+                    [
+                        'title' => 'Test Überschrift',
+                        'routePath' => '/test-ueberschrift',
+                    ]
+                ]
+            ));
+
+        $node->getPropertyValueWithDefault($propertyNameEN, json_encode([]))
+            ->willReturn(json_encode(
+                [
+                    [
+                        'title' => 'Test Headline',
+                        'routePath' => '/test-headline',
+                    ]
+                ]
+            ));
+
+        $this->document->getLocale()->willReturn($this->locale);
+        $this->document->getOriginalLocale()->willReturn('en');
+
+        $this->document->setPages(
+            [
+                [
+                    'title' => 'Test Überschrift',
+                    'routePath' => '/test-headline',
+                ]
+            ]
+        )->shouldBeCalled();
 
         $this->articleSubscriber->hydratePageData($event->reveal());
     }

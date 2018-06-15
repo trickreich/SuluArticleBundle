@@ -338,10 +338,40 @@ class ArticleSubscriber implements EventSubscriberInterface
         }
 
         $pages = $event->getNode()->getPropertyValueWithDefault(
-            $this->propertyEncoder->localizedSystemName(self::PAGES_PROPERTY, $event->getLocale()),
+            $this->propertyEncoder->localizedSystemName(self::PAGES_PROPERTY, $document->getOriginalLocale()),
             json_encode([])
         );
-        $document->setPages(json_decode($pages, true));
+        $pages = json_decode($pages, true);
+
+        if (LocalizationState::SHADOW === $this->documentInspector->getLocalizationState($document)) {
+            $pages = $this->loadPageDataForShadow($event->getNode(), $document, $pages);
+        }
+
+        $document->setPages($pages);
+    }
+
+    /**
+     * Load `routePath` from current locale into `pageData`.
+     *
+     * @param NodeInterface $node
+     * @param ArticleDocument $document
+     * @param array $originalPages
+     *
+     * @return array
+     */
+    private function loadPageDataForShadow(NodeInterface $node, ArticleDocument $document, array $originalPages)
+    {
+        $pages = $node->getPropertyValueWithDefault(
+            $this->propertyEncoder->localizedSystemName(self::PAGES_PROPERTY, $document->getLocale()),
+            json_encode([])
+        );
+        $pages = json_decode($pages, true);
+
+        for ($i = 0; $i < count($originalPages); $i++) {
+            $pages[$i]['routePath'] = $originalPages[$i]['routePath'];
+        }
+
+        return $pages;
     }
 
     /**

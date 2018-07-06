@@ -14,6 +14,7 @@ namespace Sulu\Bundle\ArticleBundle\Routing;
 use Sulu\Bundle\ArticleBundle\Document\ArticleDocument;
 use Sulu\Bundle\ArticleBundle\Document\ArticleInterface;
 use Sulu\Bundle\ArticleBundle\Document\ArticlePageDocument;
+use Sulu\Bundle\ArticleBundle\Document\Behavior\WebspaceBehavior;
 use Sulu\Bundle\RouteBundle\Routing\Defaults\RouteDefaultsProviderInterface;
 use Sulu\Component\Content\Compat\StructureManagerInterface;
 use Sulu\Component\Content\Document\WorkflowStage;
@@ -21,6 +22,7 @@ use Sulu\Component\Content\Metadata\Factory\StructureMetadataFactoryInterface;
 use Sulu\Component\Content\Metadata\StructureMetadata;
 use Sulu\Component\DocumentManager\DocumentManagerInterface;
 use Sulu\Component\HttpCache\CacheLifetimeResolverInterface;
+use Sulu\Component\Webspace\Analyzer\RequestAnalyzer;
 
 /**
  * Provides route-defaults for articles.
@@ -48,21 +50,29 @@ class ArticleRouteDefaultProvider implements RouteDefaultsProviderInterface
     private $structureManager;
 
     /**
+     * @var RequestAnalyzer
+     */
+    private $requestAnalyzer;
+
+    /**
      * @param DocumentManagerInterface $documentManager
      * @param StructureMetadataFactoryInterface $structureMetadataFactory
      * @param CacheLifetimeResolverInterface $cacheLifetimeResolver
      * @param StructureManagerInterface $structureManager
+     * @param RequestAnalyzer $requestAnalyzer
      */
     public function __construct(
         DocumentManagerInterface $documentManager,
         StructureMetadataFactoryInterface $structureMetadataFactory,
         CacheLifetimeResolverInterface $cacheLifetimeResolver,
-        StructureManagerInterface $structureManager
+        StructureManagerInterface $structureManager,
+        RequestAnalyzer $requestAnalyzer
     ) {
         $this->documentManager = $documentManager;
         $this->structureMetadataFactory = $structureMetadataFactory;
         $this->cacheLifetimeResolver = $cacheLifetimeResolver;
         $this->structureManager = $structureManager;
+        $this->requestAnalyzer = $requestAnalyzer;
     }
 
     /**
@@ -109,7 +119,25 @@ class ArticleRouteDefaultProvider implements RouteDefaultsProviderInterface
     {
         $object = $this->documentManager->find($id, $locale);
 
-        return $object instanceof ArticleInterface && WorkflowStage::PUBLISHED === $object->getWorkflowStage();
+        if (!$object instanceof ArticleInterface || WorkflowStage::PUBLISHED !== $object->getWorkflowStage()) {
+            return false;
+        }
+
+        if (!$object instanceof WebspaceBehavior) {
+            return true;
+        }
+
+        $webspace = $this->requestAnalyzer->getWebspace();
+        if (!$webspace ||
+            (
+                $object->getMainWebspace() !== $webspace->getKey()
+                && !in_array($webspace->getKey(), $object->getAdditionalWebspaces())
+            )
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

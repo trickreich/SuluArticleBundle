@@ -15,6 +15,7 @@ use Sulu\Bundle\ArticleBundle\Document\ArticleDocument;
 use Sulu\Bundle\ArticleBundle\Document\ArticleInterface;
 use Sulu\Bundle\ArticleBundle\Document\ArticlePageDocument;
 use Sulu\Bundle\ArticleBundle\Document\Behavior\WebspaceBehavior;
+use Sulu\Bundle\ArticleBundle\Document\Resolver\WebspaceResolver;
 use Sulu\Bundle\RouteBundle\Routing\Defaults\RouteDefaultsProviderInterface;
 use Sulu\Component\Content\Compat\StructureManagerInterface;
 use Sulu\Component\Content\Document\WorkflowStage;
@@ -50,6 +51,11 @@ class ArticleRouteDefaultProvider implements RouteDefaultsProviderInterface
     private $structureManager;
 
     /**
+     * @var WebspaceResolver
+     */
+    private $webspaceResolver;
+
+    /**
      * @var RequestAnalyzer
      */
     private $requestAnalyzer;
@@ -59,6 +65,7 @@ class ArticleRouteDefaultProvider implements RouteDefaultsProviderInterface
      * @param StructureMetadataFactoryInterface $structureMetadataFactory
      * @param CacheLifetimeResolverInterface $cacheLifetimeResolver
      * @param StructureManagerInterface $structureManager
+     * @param WebspaceResolver $webspaceResolver
      * @param RequestAnalyzer $requestAnalyzer
      */
     public function __construct(
@@ -66,12 +73,14 @@ class ArticleRouteDefaultProvider implements RouteDefaultsProviderInterface
         StructureMetadataFactoryInterface $structureMetadataFactory,
         CacheLifetimeResolverInterface $cacheLifetimeResolver,
         StructureManagerInterface $structureManager,
+        WebspaceResolver $webspaceResolver,
         RequestAnalyzer $requestAnalyzer
     ) {
         $this->documentManager = $documentManager;
         $this->structureMetadataFactory = $structureMetadataFactory;
         $this->cacheLifetimeResolver = $cacheLifetimeResolver;
         $this->structureManager = $structureManager;
+        $this->webspaceResolver = $webspaceResolver;
         $this->requestAnalyzer = $requestAnalyzer;
     }
 
@@ -130,8 +139,8 @@ class ArticleRouteDefaultProvider implements RouteDefaultsProviderInterface
         $webspace = $this->requestAnalyzer->getWebspace();
         if (!$webspace ||
             (
-                $object->getMainWebspace() !== $webspace->getKey()
-                && !in_array($webspace->getKey(), $object->getAdditionalWebspaces())
+                $this->webspaceResolver->resolveMainWebspace($object) !== $webspace->getKey()
+                && !in_array($webspace->getKey(), $this->webspaceResolver->resolveAdditionalWebspaces($object))
             )
         ) {
             return false;

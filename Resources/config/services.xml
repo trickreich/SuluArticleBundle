@@ -226,6 +226,7 @@
             <argument type="service" id="sulu_content.structure.factory"/>
             <argument type="service" id="sulu_http_cache.cache_lifetime.resolver"/>
             <argument type="service" id="sulu.content.structure_manager"/>
+            <argument type="service" id="sulu_article.resolver.webspaces"/>
             <argument type="service" id="sulu_core.webspace.request_analyzer"/>
 
             <tag name="sulu_route.defaults_provider"/>
@@ -376,6 +377,13 @@
 
         <service id="sulu_article.builder.index" class="Sulu\Bundle\ArticleBundle\Builder\ArticleIndexBuilder">
             <tag name="massive_build.builder" />
+        </service>
+
+        <!-- resolver -->
+        <service id="sulu_article.resolver.webspaces"
+                 class="Sulu\Bundle\ArticleBundle\Document\Resolver\WebspaceResolver">
+            <argument>%sulu_article.default_main_webspace%</argument>
+            <argument>%sulu_article.default_additional_webspaces%</argument>
         </service>
     </services>
 </container>

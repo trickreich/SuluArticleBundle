@@ -357,6 +357,8 @@ define([
             var data = this.sandbox.form.getData(this.formId);
             var baseLanguages = this.sandbox.dom.data('#shadow_base_language_select', 'selectionValues');
 
+            data.mainWebspace = null;
+            data.additionalWebspaces = null;
             if (hasCustomWebspaceSettings.call(this)) {
                 data.mainWebspace = this.getSelectedMainWebspace();
                 data.additionalWebspaces = this.getSelectedAdditionalWebspace();

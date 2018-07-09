@@ -12,9 +12,15 @@
 namespace Sulu\Bundle\ArticleBundle\Document\Resolver;
 
 use Sulu\Bundle\ArticleBundle\Document\Behavior\WebspaceBehavior;
+use Sulu\Component\Webspace\Manager\WebspaceManagerInterface;
 
 class WebspaceResolver
 {
+    /**
+     * @var WebspaceManagerInterface
+     */
+    private $webspaceManager;
+
     /**
      * @var string
      */
@@ -30,9 +36,11 @@ class WebspaceResolver
      * @param string[] $defaultAdditionalWebspaces
      */
     public function __construct(
+        WebspaceManagerInterface $webspaceManager,
         $defaultMainWebspace,
         $defaultAdditionalWebspaces
     ) {
+        $this->webspaceManager = $webspaceManager;
         $this->defaultMainWebspace = $defaultMainWebspace;
         $this->defaultAdditionalWebspaces = $defaultAdditionalWebspaces;
     }
@@ -44,6 +52,12 @@ class WebspaceResolver
      */
     public function resolveMainWebspace(WebspaceBehavior $document)
     {
+        if (!$this->hasMoreThanOneWebspace()) {
+            $webspaces = $this->webspaceManager->getWebspaceCollection()->getWebspaces();
+
+            return reset($webspaces)->getKey();
+        }
+
         return $document->getMainWebspace() ? $document->getMainWebspace() : $this->defaultMainWebspace;
     }
 
@@ -54,6 +68,20 @@ class WebspaceResolver
      */
     public function resolveAdditionalWebspaces(WebspaceBehavior $document)
     {
+        if (!$this->hasMoreThanOneWebspace()) {
+            return null;
+        }
+
         return $document->getAdditionalWebspaces() ? $document->getAdditionalWebspaces(): $this->defaultAdditionalWebspaces;
+    }
+
+    /**
+     * Check if system has more than one webspace.
+     *
+     * @return bool
+     */
+    private function hasMoreThanOneWebspace()
+    {
+        return count($this->webspaceManager->getWebspaceCollection()->getWebspaces()) > 1;
     }
 }

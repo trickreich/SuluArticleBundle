@@ -288,7 +288,11 @@ class ArticleControllerTest extends SuluTestCase
         $this->assertEquals('test', $document->getMainWebspace());
         $this->assertEquals(['sulu_io'], $document->getAdditionalWebspaces());
 
-        $this->assertNotNull($this->findViewDocument($response['id'], 'de'));
+        /** @var ArticleViewDocument $viewDocument */
+        $viewDocument = $this->findViewDocument($response['id'], 'de');
+        $this->assertNotNull($viewDocument);
+        $this->assertEquals('test', $viewDocument->getMainWebspace());
+        $this->assertEquals(['sulu_io'], $viewDocument->getAdditionalWebspaces());
     }
 
     public function testGetGhost()

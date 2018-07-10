@@ -71,16 +71,15 @@ sulu_article:
 
 ### Webspace behavior
 
-When you have more than one webspace in your Sulu project you must provide a default main webspace and optional
-you can also provide default additional webspaces.
+When you have more than one webspace in your Sulu installation you should provide a default main webspace and optional additional webspaces for which the article is valid.
 
 #### Functionality
 
-An article is delivered only on the main webspace.
-Additionally the article can be delivered on additional webspaces marked as copy of the main one to avoid duplicate content issues.
-This is done with the `canonical tag` in the html header.
+Normally an article will be delivered only for the main webspace. Further an article can be delivered for
+the additional webspaces which are configured. To prevent duplicate content issues a canonical tag with the
+url for the main webspace is inclued in the HTML head.
 
-More information about this:
+More information about this topic:
 * Duplicate content: https://moz.com/learn/seo/duplicate-content
 * Canonicalization: https://moz.com/learn/seo/canonicalization
 
@@ -95,8 +94,7 @@ sulu_article:
 
 #### Content Manager
 
-This default webspace settings can be overwritten by the content manager for each article.
-The form is located in the tab `settings`.
+For each article the default webspace configuration can be overwritten by the content manager.
 
 ## Create Template
 

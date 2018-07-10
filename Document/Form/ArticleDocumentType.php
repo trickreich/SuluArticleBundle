@@ -42,6 +42,9 @@ class ArticleDocumentType extends AbstractStructureBehaviorType
             , CollectionType::class,
             [
                 'entry_type' => TextType::class,
+                'entry_options' => [
+                    'required' => false,
+                ],
                 'allow_add' => true,
                 'allow_delete' => true,
             ]

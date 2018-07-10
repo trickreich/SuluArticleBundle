@@ -63,7 +63,14 @@ class WebspaceSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->getNode()->setProperty(self::MAIN_WEBSPACE_PROPERTY, $document->getMainWebspace());
-        $event->getNode()->setProperty(self::ADDITIONAL_WEBSPACES_PROPERTY, $document->getAdditionalWebspaces());
+        $mainWebspace = $document->getMainWebspace();
+        $additionalWebspaces = null;
+        if ($mainWebspace) {
+            $mainWebspace = $document->getMainWebspace();
+            $additionalWebspaces = $document->getAdditionalWebspaces();
+        }
+
+        $event->getNode()->setProperty(self::MAIN_WEBSPACE_PROPERTY, $mainWebspace);
+        $event->getNode()->setProperty(self::ADDITIONAL_WEBSPACES_PROPERTY, $additionalWebspaces);
     }
 }

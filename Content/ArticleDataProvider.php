@@ -29,7 +29,6 @@ use Sulu\Component\SmartContent\Configuration\BuilderInterface;
 use Sulu\Component\SmartContent\DataProviderAliasInterface;
 use Sulu\Component\SmartContent\DataProviderInterface;
 use Sulu\Component\SmartContent\DataProviderResult;
-use ZendSearch\Lucene\Index\Term;
 
 /**
  * Introduces articles in smart-content.

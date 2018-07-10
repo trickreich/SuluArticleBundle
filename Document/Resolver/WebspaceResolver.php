@@ -58,7 +58,11 @@ class WebspaceResolver
             return reset($webspaces)->getKey();
         }
 
-        return $document->getMainWebspace() ? $document->getMainWebspace() : $this->defaultMainWebspace;
+        if ($document->getMainWebspace()) {
+            return $document->getMainWebspace();
+        }
+
+        return $this->defaultMainWebspace;
     }
 
     /**
@@ -69,10 +73,14 @@ class WebspaceResolver
     public function resolveAdditionalWebspaces(WebspaceBehavior $document)
     {
         if (!$this->hasMoreThanOneWebspace()) {
-            return null;
+            return [];
         }
 
-        return $document->getAdditionalWebspaces() ? $document->getAdditionalWebspaces(): $this->defaultAdditionalWebspaces;
+        if ($document->getAdditionalWebspaces()) {
+            return $document->getAdditionalWebspaces();
+        }
+
+        return $this->defaultAdditionalWebspaces;
     }
 
     /**

@@ -69,14 +69,17 @@ sulu_article:
     prefix: /admin/articles
 ```
 
-### Configure default webspace behavior
+### Webspace behavior
 
 When you have more than one webspace in your Sulu project you must provide a default main webspace and optional
 you can also provide default additional webspaces.
 
-This default webspace settings can be overwritten by the content manager for each article.
-The form is located in the tab `settings`.
+#### Functionality
 
+An article is only delivered on the main webspace.
+Additionally the article can be delivered on additional webspaces as `Duplicate Content`. 
+
+#### Configuration
 ```yml
 sulu_article:
     default_main_webspace: 'webspace1'
@@ -84,6 +87,11 @@ sulu_article:
         - 'webspace2'
         - 'webspace3'
 ```
+
+#### Content Manager
+
+This default webspace settings can be overwritten by the content manager for each article.
+The form is located in the tab `settings`.
 
 ## Create Template
 

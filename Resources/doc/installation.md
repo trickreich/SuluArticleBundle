@@ -69,6 +69,22 @@ sulu_article:
     prefix: /admin/articles
 ```
 
+### Configure default webspace behavior
+
+When you have more than one webspace in your Sulu project you must provide a default main webspace and optional
+you can also provide default additional webspaces.
+
+This default webspace settings can be overwritten by the content manager for each article.
+The form is located in the tab `settings`.
+
+```yml
+sulu_article:
+    default_main_webspace: 'webspace1'
+    default_additional_webspaces:
+        - 'webspace2'
+        - 'webspace3'
+```
+
 ## Create Template
 
 Add xml template for structure in configured folder:
@@ -122,6 +138,8 @@ php bin/console ongr:es:index:create --manager=live
 # app/config/config.yml
 
 sulu_article:
+    default_main_webspace: null
+    default_additional_webspaces: []
     smart_content:
         default_limit:        100
     content_types:

@@ -238,7 +238,7 @@ define([
 
             if (isInitial) {
                 mainWebspace = this.data.mainWebspace ? this.data.mainWebspace : config.defaultMainWebspace;
-                additionalWebspaces = this.data.additionalWebspaces ? this.data.additionalWebspaces : config.defaultAdditionalWebspaces;
+                additionalWebspaces = this.data.additionalWebspaces && this.data.additionalWebspaces.length > 0 ? this.data.additionalWebspaces : config.defaultAdditionalWebspaces;
             } else {
                 mainWebspace = this.getSelectedMainWebspace();
                 additionalWebspaces = this.getSelectedAdditionalWebspace();

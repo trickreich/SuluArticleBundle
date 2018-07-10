@@ -76,8 +76,13 @@ you can also provide default additional webspaces.
 
 #### Functionality
 
-An article is only delivered on the main webspace.
-Additionally the article can be delivered on additional webspaces as `Duplicate Content`. 
+An article is delivered only on the main webspace.
+Additionally the article can be delivered on additional webspaces marked as copy of the main one to avoid duplicate content issues.
+This is done with the `canonical tag` in the html header.
+
+More information about this:
+* Duplicate content: https://moz.com/learn/seo/duplicate-content
+* Canonicalization: https://moz.com/learn/seo/canonicalization
 
 #### Configuration
 ```yml

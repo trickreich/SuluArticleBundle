@@ -379,6 +379,29 @@ class ArticleDataProviderTest extends SuluTestCase
         $this->assertCount(3, $result->getItems());
     }
 
+    public function testResolveDataItemsWithIgnoreWebspaces()
+    {
+        $items = [
+            $this->createArticle('Test-Article 1', 'default', 'test'),
+            $this->createArticle('Test-Article 2', 'default', 'test2', ['sulu_io']),
+            $this->createArticle('Test-Article 2', 'default', 'sulu_io'),
+            $this->createArticle(),
+        ];
+
+        $referenceStore = $this->getContainer()->get('sulu_article.reference_store.article');
+        $referenceStore->add($items[0]['id']);
+
+        $dataProvider = $this->getContainer()->get('sulu_article.content.data_provider');
+
+        $result = $dataProvider->resolveDataItems(
+            [],
+            ['ignore_webspaces' => new PropertyParameter('ignore_webspaces', true)],
+            ['locale' => 'de', 'webspaceKey' => 'sulu_io']
+        );
+
+        $this->assertCount(4, $result->getItems());
+    }
+
     private function createArticle(
         $title = 'Test-Article',
         $template = 'default',

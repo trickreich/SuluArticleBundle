@@ -137,7 +137,7 @@ class ArticleDataProvider implements DataProviderInterface, DataProviderAliasInt
     {
         return [
             'type' => new PropertyParameter('type', null),
-            'webspace' => new PropertyParameter('webspace', null),
+            'ignore_webspaces' => new PropertyParameter('ignore_webspaces', false),
         ];
     }
 
@@ -214,11 +214,11 @@ class ArticleDataProvider implements DataProviderInterface, DataProviderAliasInt
      */
     private function getWebspaceKey(array $propertyParameter, array $options)
     {
-        if (array_key_exists('webspace', $propertyParameter)) {
-            $value = $propertyParameter['webspace']->getValue();
+        if (array_key_exists('ignore_webspaces', $propertyParameter)) {
+            $value = $propertyParameter['ignore_webspaces']->getValue();
 
-            if ($value) {
-                return $value;
+            if (true === $value) {
+                return false;
             }
         }
 

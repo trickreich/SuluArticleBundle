@@ -218,7 +218,7 @@ class ArticleDataProvider implements DataProviderInterface, DataProviderAliasInt
             $value = $propertyParameter['ignore_webspaces']->getValue();
 
             if (true === $value) {
-                return false;
+                return null;
             }
         }
 

@@ -13,18 +13,24 @@ namespace Sulu\Bundle\ArticleBundle\Tests\Unit\Routing;
 
 use Sulu\Bundle\ArticleBundle\Document\ArticleDocument;
 use Sulu\Bundle\ArticleBundle\Document\Resolver\WebspaceResolver;
-use Sulu\Bundle\ArticleBundle\Routing\ArticlePageRouteGenerator;
 use Sulu\Bundle\ArticleBundle\Routing\ArticleRouteEnhancer;
-use Sulu\Bundle\RouteBundle\Generator\RouteGeneratorInterface;
-use Sulu\Bundle\RouteBundle\Generator\TokenProviderInterface;
 use Sulu\Component\Webspace\Analyzer\Attributes\RequestAttributes;
 use Sulu\Component\Webspace\Manager\WebspaceManagerInterface;
 use Sulu\Component\Webspace\Webspace;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ArticleRouteEnhancerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Webspace
+     */
+    private $webspace;
+
+    /**
+     * @var RequestAttributes
+     */
+    private $requestAttributes;
+
     /**
      * @var WebspaceManagerInterface
      */

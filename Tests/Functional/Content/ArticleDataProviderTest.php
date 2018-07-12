@@ -423,7 +423,7 @@ class ArticleDataProviderTest extends SuluTestCase
         $this->assertEquals('test', $items[0]->getTargetWebspace());
         $this->assertEquals('test2', $items[1]->getTargetWebspace());
         $this->assertEquals('sulu_io', $items[2]->getTargetWebspace());
-        $this->assertEquals('test', $items[3]->getTargetWebspace());
+        $this->assertEquals('sulu_io', $items[3]->getTargetWebspace());
 
         $this->popFakeRequest();
     }

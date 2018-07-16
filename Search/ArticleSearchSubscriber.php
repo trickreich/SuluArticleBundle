@@ -43,7 +43,7 @@ class ArticleSearchSubscriber implements EventSubscriberInterface
     /**
      * Returns the events this subscriber has subscribed.
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             SearchEvents::PRE_INDEX => 'handlePreIndex',

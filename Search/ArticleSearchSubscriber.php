@@ -51,9 +51,9 @@ class ArticleSearchSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Adds the image to the search document.
+     * @param PreIndexEvent $event
      */
-    public function handlePreIndex(PreIndexEvent $event): void
+    public function handlePreIndex(PreIndexEvent $event)
     {
         $subject = $event->getSubject();
         $document = $event->getDocument();

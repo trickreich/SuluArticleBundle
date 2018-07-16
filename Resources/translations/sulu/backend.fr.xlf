@@ -224,19 +224,19 @@
              </trans-unit>
              <trans-unit id="webspace-settings-01" resname="sulu_article.form.settings.webspace_settings">
                  <source>sulu_article.form.settings.webspace_settings</source>
-                 <target>TODO</target>
+                 <target>Webspace paramètres</target>
              </trans-unit>
              <trans-unit id="webspace-settings-02" resname="sulu_article.form.settings.webspace_settings.customize_enable">
                  <source>sulu_article.form.settings.webspace_settings.customize_enable</source>
-                 <target>TODO</target>
+                 <target>Personnalisation</target>
              </trans-unit>
              <trans-unit id="webspace-settings-03" resname="sulu_article.form.settings.webspace_settings.main_webspace">
                  <source>sulu_article.form.settings.webspace_settings.main_webspace</source>
-                 <target>TODO</target>
+                 <target>Webspace principal</target>
              </trans-unit>
              <trans-unit id="webspace-settings-04" resname="sulu_article.form.settings.webspace_settings.additional_webspaces">
                  <source>sulu_article.form.settings.webspace_settings.additional_webspaces</source>
-                 <target>TODO</target>
+                 <target>Webspace additionnel</target>
              </trans-unit>
         </body>
     </file>
